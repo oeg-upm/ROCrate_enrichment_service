@@ -40,15 +40,17 @@ def token_authentication (token):
 def check_status (ticket: str):
     conn = sql.connect("Database/enrrichmentDB.db")
     cursor = conn.cursor()
-    instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '{ticket}')"
-    exists = cursor.execute(instruction) 
-    if not exists:
+    print(ticket)
+    instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '4cdd03f7-eebc-4597-9469-2325aa17cc94')"
+    
+    exists = cursor.execute(instruction).fetchone()[0]
+    if exists < 0:
         return (-1)
     else:
         instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '{ticket}' AND ready = TRUE)"
-        ready = cursor.execute(instruction).rowcount
+        ready = cursor.execute(instruction).fetchone()[0]
         if ready > 0:
-            return 1
+            return 1    
         return 0  
 
     
@@ -83,7 +85,7 @@ class Jobs (Resource):
                 conn = sql.connect("Database/enrrichmentDB.db")
                 cursor = conn.cursor()
                 cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
-                instruction = f"INSERT INTO jobs VALUES ('{filename}','sdfafaf',FALSE)"
+                instruction = f"INSERT INTO jobs VALUES ('{ticket}','sdfafaf',FALSE)"
                 cursor.execute(instruction)
                 conn.commit()
                 conn.close
