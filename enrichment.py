@@ -1,8 +1,63 @@
-import requests, json, os
+from flask import jsonify
+import requests, json, os, uuid, jwt, datetime
 import sqlite3 as sql
+from werkzeug.security import generate_password_hash, check_password_hash
 
 INPUT_FOLDER = '/pending_jobs'
 OUTPUT_FOLDER = '/done_jobs'
+SECRET_KEY = 'UPMROCRATEENRICHMENTSERVICE'
+CURRENT_USER = {}
+
+def signup(entry_dict:dict):
+  conn = sql.connect("Database/enrrichmentDB.db")
+  cursor = conn.cursor()
+  cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+    id integer NOT NULL UNIQUE PRIMARY KEY,
+    username text NOT NULL, 
+    userpassword text NOT NULL,
+    admin boolean DEFAULT 0, 
+    token text)""")
+  username = entry_dict.get("username")
+  userpassword = generate_password_hash(entry_dict.get("userpassword"), method= 'sha256')
+  id = str(uuid.uuid4())
+  instruction = f"INSERT INTO users VALUES ('{id}','{username}','{userpassword}')"
+  result = cursor.execute(instruction)
+  conn.commit()
+  conn.close()
+  if result:
+    return jsonify({'message':'New user was created'}), 201
+  return jsonify({'message' : 'Something went wrong. Please make sure to enter both username and password.'}), 401 
+
+def login (entry_dict: dict):
+  conn = sql.connect("Database/enrrichmentDB.db")
+  cursor = conn.cursor()
+  username = entry_dict.get("username")
+  userpassword = generate_password_hash(entry_dict.get("userpassword"))
+  instruction = f"SELECT 1 FROM users WHERE username = '{username}' AND userpassword = '{userpassword}'"
+  result = cursor.execute (instruction)
+  conn.commit()
+  conn.close()
+  if result:
+    CURRENT_USER = result
+    token = jwt.encode({'id':result.get('id')}, SECRET_KEY)
+    return jsonify({'message': 'Logged in successfully!','token':token.decode('UTF-8')}), 200
+  else:
+    return jsonify({'message':'Uesr not found! Please make sure to use valid username and password'}), 401
+        
+
+def token_authentication (entry_dict: dict):
+      if 'token' in entry_dict:
+        data = jwt.decode(entry_dict.get('token'), SECRET_KEY)
+        conn = sql.connect("Database/enrrichmentDB.db")
+        cursor = conn.cursor()
+        instruction = f"SELECT 1 FROM users WHERE id = '{data}'"
+        result = cursor.execute(instruction)
+        if result:
+              CURRENT_USER = result
+              return jsonify({'message' : 'Authenticated successfully!'}), 200
+        return jsonify({'message' : 'Token is missing!'}), 401
+      else:
+        return jsonify({'message' : 'Token is missing!'}), 401
 
 
 
