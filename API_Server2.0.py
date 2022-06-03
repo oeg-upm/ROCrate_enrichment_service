@@ -9,8 +9,8 @@ from werkzeug.datastructures import ImmutableMultiDict
 
 
 
-UPLOAD_FOLDER = '/pending_jobs'
-DOWNLOAD_FOLDER = '/done_jobs'
+UPLOAD_FOLDER = './pending_jobs'
+DOWNLOAD_FOLDER = './done_jobs'
 SECRET_KEY = 'UPMROCRATEENRICHMENTSERVICE'
 ALLOWED_EXTENSIONS = {'json', 'jsonld'}
 CURRENT_USER = {}
@@ -145,7 +145,6 @@ class login(Resource):
         instruction = f"SELECT * FROM users WHERE username = '{username}'"
         result = cursor.execute (instruction)
         for user in result.fetchall():
-            print(user[2])
             if check_password_hash(user[2],entry_dict.get("userpassword")):
                 CURRENT_USER = user
                 token = jwt.encode({'id':user[0]}, SECRET_KEY, "HS256")
@@ -194,7 +193,6 @@ def signup(entry_dict:dict):
     entry_dict = {'username':'user1','userpassword':'password123'}
     conn = sql.connect("Database/enrrichmentDB.db")
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE users;")
     cursor.execute("""CREATE TABLE IF NOT EXISTS users (
     id text NOT NULL UNIQUE PRIMARY KEY,
     username text NOT NULL, 
