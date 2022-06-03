@@ -5,14 +5,14 @@ import cgi, enrichment, json
 class Server (BaseHTTPRequestHandler):
     
     def _set_headers(self):
-        self.send_response(200)
+        self.send_resp(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
     def do_POST (self):
         if self.path.endswith("/enrich"):
             content_type = cgi.parse_header(self.headers.get('Content-Type'))
             if  content_type[0] != 'application/json':
-                self.send_response(400,message="Please make sure to use a suitable entry!")
+                self.send_resp(400,message="Please make sure to use a suitable entry!")
                 self.end_headers()
                 return
 

@@ -18,6 +18,6 @@ data = {
   'grant_type': 'password'
 }
 
-response = requests.post('http://localhost:8008', data=data)
+resp = requests.post('http://localhost:8008', data=data)
 
-print (response)
+print (resp)

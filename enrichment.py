@@ -1,63 +1,11 @@
 from flask import jsonify
 import requests, json, os, uuid, jwt, datetime
 import sqlite3 as sql
-from werkzeug.security import generate_password_hash, check_password_hash
 
 INPUT_FOLDER = '/pending_jobs'
 OUTPUT_FOLDER = '/done_jobs'
-SECRET_KEY = 'UPMROCRATEENRICHMENTSERVICE'
-CURRENT_USER = {}
 
-def signup(entry_dict:dict):
-  conn = sql.connect("Database/enrrichmentDB.db")
-  cursor = conn.cursor()
-  cursor.execute("""CREATE TABLE IF NOT EXISTS users (
-    id integer NOT NULL UNIQUE PRIMARY KEY,
-    username text NOT NULL, 
-    userpassword text NOT NULL,
-    admin boolean DEFAULT 0, 
-    token text)""")
-  username = entry_dict.get("username")
-  userpassword = generate_password_hash(entry_dict.get("userpassword"), method= 'sha256')
-  id = str(uuid.uuid4())
-  instruction = f"INSERT INTO users VALUES ('{id}','{username}','{userpassword}')"
-  result = cursor.execute(instruction)
-  conn.commit()
-  conn.close()
-  if result:
-    return jsonify({'message':'New user was created'}), 201
-  return jsonify({'message' : 'Something went wrong. Please make sure to enter both username and password.'}), 401 
 
-def login (entry_dict: dict):
-  conn = sql.connect("Database/enrrichmentDB.db")
-  cursor = conn.cursor()
-  username = entry_dict.get("username")
-  userpassword = generate_password_hash(entry_dict.get("userpassword"))
-  instruction = f"SELECT 1 FROM users WHERE username = '{username}' AND userpassword = '{userpassword}'"
-  result = cursor.execute (instruction)
-  conn.commit()
-  conn.close()
-  if result:
-    CURRENT_USER = result
-    token = jwt.encode({'id':result.get('id')}, SECRET_KEY)
-    return jsonify({'message': 'Logged in successfully!','token':token.decode('UTF-8')}), 200
-  else:
-    return jsonify({'message':'Uesr not found! Please make sure to use valid username and password'}), 401
-        
-
-def token_authentication (entry_dict: dict):
-      if 'token' in entry_dict:
-        data = jwt.decode(entry_dict.get('token'), SECRET_KEY)
-        conn = sql.connect("Database/enrrichmentDB.db")
-        cursor = conn.cursor()
-        instruction = f"SELECT 1 FROM users WHERE id = '{data}'"
-        result = cursor.execute(instruction)
-        if result:
-              CURRENT_USER = result
-              return jsonify({'message' : 'Authenticated successfully!'}), 200
-        return jsonify({'message' : 'Token is missing!'}), 401
-      else:
-        return jsonify({'message' : 'Token is missing!'}), 401
 
 
 
@@ -69,16 +17,16 @@ def openAire_datasets(doi:str):
                 'format': "json",
                 'size':100
         }
-        response = requests.get(openAireURL, params=payload).json()
+        resp = requests.get(openAireURL, params=payload).json()
         #f = open("Massive-ROs-Creator\Enrichment.json", "w")
-        #f.write(json.dumps(response, indent=4, sort_keys=True))
+        #f.write(json.dumps(resp, indent=4, sort_keys=True))
         #f.close()
-        #print (response)
-        if '"results": null' in str(response):
+        #print (resp)
+        if '"results": null' in str(resp):
                 return None
         else:
-                #print(type(response))
-                return response
+                #print(type(resp))
+                return resp
         
         
 
@@ -90,27 +38,19 @@ def openAire_pub(doi:str):
                 'format': "json",
                 'size':100
         }
-        response = requests.get(openAireURL, params=payload).json()
+        resp = requests.get(openAireURL, params=payload).json()
         
-        #print (response)
-        if "'results': None" in str(response):
+        #print (resp)
+        if "'results': None" in str(resp):
                 return None
         else:
-                #print(type(response))
-                return response
+                #print(type(resp))
+                return resp
 
 def enrich_RO (filename: str):
       
   ro = {}
-  if not os.path.exists("Database"):
-          os.makedirs("Database")
-  conn = sql.connect("Database/enrrichmentDB.db")
-  cursor = conn.cursor()
-  cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
-  instruction = f"INSERT INTO jobs VALUES ('{filename}','sdfafaf',FALSE)"
-  cursor.execute(instruction)
-  conn.commit()
-  conn.close
+  
 
   f = open(INPUT_FOLDER + '//' +filename, "r",encoding="utf-8")
   entry_json = f.read()
@@ -137,7 +77,7 @@ def enrich_RO (filename: str):
   if enrichment_RO_raw != None and not "'results': None" in str(enrichment_RO_raw):
     #print(enrichment_RO_raw)
     
-    enrichment_RO_raw = enrichment_RO_raw.get("response").get("results").get("result")[0]
+    enrichment_RO_raw = enrichment_RO_raw.get("resp").get("results").get("result")[0]
     #print (enrichment_RO_raw)
 
     ro["date_of_collection"] = enrichment_RO_raw.get("header").get("dri:dateOfCollection").get("$")
@@ -288,21 +228,7 @@ def enrich_RO (filename: str):
   f.close()
   return (RO)
 
-def check_return (ticket: str):
-  conn = sql.connect("Database/enrrichmentDB.db")
-  cursor = conn.cursor()
-  instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '{ticket}')"
-  exists = cursor.execute(instruction) 
-  if not exists:
-     return (-1)
-  else:
-    instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '{ticket}' AND ready = TRUE)"
-    ready = cursor.execute(instruction) 
-    if ready:
-      return 1
-    return 0  
 
-    
 
   conn.commit()
   conn.close
