@@ -85,7 +85,7 @@ class Jobs (Resource):
                 conn = sql.connect("Database/enrrichmentDB.db")
                 cursor = conn.cursor()
                 cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
-                instruction = f"INSERT INTO jobs VALUES ('{ticket}','sdfafaf',FALSE)"
+                instruction = f"INSERT INTO jobs VALUES ('{ticket}','{token}',FALSE)"
                 cursor.execute(instruction)
                 conn.commit()
                 conn.close
@@ -108,27 +108,39 @@ class Jobs (Resource):
         if not request.json:
             resp = jsonify({'message' : 'Please make sure to send a valid request. Your request lacks a json payload.'})
             resp.status_code = 400
-            return resp    
-        if not "ticket" in request.json:
-            resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a ticket key'})
+            return resp
+        entry_dict = request.json
+        if not "tocken" in entry_dict:
+            resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a token key'})
             resp.status_code = 400
             return resp 
-        else:
-            ticket = request.json.get("ticket")
-            result = check_status(ticket)
-            if result == -1:
-                resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload has an invalid ticket'})
+        token = entry_dict.get("token")
+        authorized = token_authentication(token)
+        if authorized:
+            if not "ticket" in entry_dict:
+                resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a ticket key'})
                 resp.status_code = 400
-                return resp   
-            if result == 0:
-                resp = jsonify({'message' : 'Your request is yet to be attended. Please try again in a few minutes'})
-                resp.status_code = 200
-                return resp
-            else:   
-                resp = jsonify({'message' : 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'})
-                resp.status_code = 200
-                return resp
-
+                return resp 
+            else:
+                ticket = entry_dict.get("ticket")
+                result = check_status(ticket)
+                if result == -1:
+                    resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload has an invalid ticket'})
+                    resp.status_code = 400
+                    return resp               
+                
+                if result == 0:
+                    resp = jsonify({'message' : 'Your request is yet to be attended. Please try again in a few minutes'})
+                    resp.status_code = 200
+                    return resp
+                else:   
+                    resp = jsonify({'message' : 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'})
+                    resp.status_code = 200
+                    return resp
+        else:
+            resp = jsonify({'message' : 'You are not allowed to perform this request. Please make sure that you are logged in to the service.'})
+            resp.status_code = 400
+            return resp 
 
 class login(Resource):
     def post(self):
