@@ -211,7 +211,7 @@ def enrich_RO ():
         except:
           pass
       if not os.path.exists(OUTPUT_FOLDER):
-                  os.makedirs(OUTPUT_FOLDER)
+        os.makedirs(OUTPUT_FOLDER)
       f = open(OUTPUT_FOLDER + '/' + filename, "w")
       f.write(json.dumps(RO, indent=5, sort_keys=True))
       f.close()
@@ -224,10 +224,16 @@ def enrich_RO ():
       conn.close
       today = str(dt.date.today())
       if not os.path.exists("log"):
-                  os.makedirs("log")
-      f = open("./log/log-"+today+".txt", "a")
-      f.write("Here goes a log")
-      f.close()
+        os.makedirs("log")
+      log_file = open("./log/log-"+today+".txt", "a")
+      log_time = time.localtime()
+      log_time = time.strftime("%H:%M:%S", log_time)
+      print(log_time)
+      log = f"************************************************\n{log_time}:Loggy loggy file\n\n"
+      log_file.writelines(log)
+      log_file.writelines("")
+      
+      log_file.close()
       
 
       

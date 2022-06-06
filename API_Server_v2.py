@@ -4,7 +4,6 @@ from flask_restful import Api, Resource
 import os, uuid, jwt, json
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3 as sql
-from werkzeug.datastructures import ImmutableMultiDict
 
 
 
@@ -42,16 +41,15 @@ def check_status (ticket: str, token: str):
     cursor = conn.cursor()
     instruction = f"SELECT * FROM jobs WHERE job_id = '{ticket}'"
     
-    exists = cursor.execute(instruction).fetchone()
+    result = cursor.execute(instruction).fetchone()
 
-    if exists[0] != ticket:
+    if result[0] != ticket:
         return (-1)
     else:
-        if exists[1] == token:
-            ready = exists[2]
-            print (ready)
+        if result[2] == token:
+            ready = result[3]
             if ready > 0:
-                return 1    
+                return result[1]    
             return 0  
         else:
             return -2
@@ -86,8 +84,10 @@ class Jobs (Resource):
                     os.makedirs("Database")
                 conn = sql.connect("./Database/enrrichmentDB.db")
                 cursor = conn.cursor()
-                cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
-                instruction = f"INSERT INTO jobs VALUES ('{ticket}','{token}',FALSE)"
+                cursor.execute("""DROP TABLE jobs""")
+                
+                cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, original_name text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
+                instruction = f"INSERT INTO jobs VALUES ('{ticket}','{file.filename}','{token}',FALSE)"
                 cursor.execute(instruction)
                 conn.commit()
                 conn.close
@@ -138,7 +138,7 @@ class Jobs (Resource):
                     resp.status_code = 200
                     return resp
                 if result == -2:
-                    resp = jsonify({'message' : 'Your request was declined. Only the file owner can see it\' status'})
+                    resp = jsonify({'message' : 'Your request was declined. Only the file owner can see it\'s status'})
                     resp.status_code = 400
                     return resp    
                 else:   
@@ -195,19 +195,24 @@ class research_object (Resource):
             else:
                 ticket = request.json.get("ticket")
                 status = check_status(ticket, token)
-                if status == 1:
-                    resp = send_file(app.config['DOWNLOAD_FOLDER'] + '/' + ticket+".jsonld", attachment_filename="lksjdlad")
-                    resp.status_code = 200
-                    return resp
+                
                 if status == -2:
-                    resp = jsonify({'message' : 'Couldn\' download file. Only the file owner can download the file.'})
+                    resp = jsonify({'message' : 'Couldn\'t download file. Only the file owner can download the file.'})
                     resp.status_code = 400
                     return resp 
-                else:
+                if status == -1:
+                    resp = jsonify({'message' : 'Couldn\'t download file. The ticket you entered isn\'t valid.'})
+                    resp.status_code = 400
+                    return resp   
+                if status == 0:
                     resp = jsonify({'message' : 'Couldn\' download file. Your file isn\'t ready yet.'})
                     resp.status_code = 400
                     return resp 
 
+                else:
+                    resp = send_file(app.config['DOWNLOAD_FOLDER'] + '/' + ticket+".jsonld", attachment_filename="enriched_"+status)
+                    resp.status_code = 200
+                    return resp
         else:
             resp = jsonify({'message' : 'You are not allowed to perform this request. Please make sure that you are logged in to the service.'})
             resp.status_code = 400

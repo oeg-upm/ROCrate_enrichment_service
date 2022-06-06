@@ -45,6 +45,7 @@ def signup(entry_dict:dict):
     conn.close()
    
     return 1
+  
 if __name__ == "__main__":
 
   signup({})
