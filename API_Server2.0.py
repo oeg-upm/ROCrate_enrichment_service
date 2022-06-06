@@ -28,7 +28,7 @@ def allowed_file(filename):
 def token_authentication (token):
     data = jwt.decode(token, app.config['SECRET_KEY'], "HS256")
     id = data.get("id")
-    conn = sql.connect("Database/enrrichmentDB.db")
+    conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
     instruction = f"SELECT 1 FROM users WHERE id = '{id}'"
     result = cursor.execute(instruction)
@@ -37,22 +37,24 @@ def token_authentication (token):
         return True
     return False
 
-def check_status (ticket: str):
-    conn = sql.connect("Database/enrrichmentDB.db")
+def check_status (ticket: str, token: str):
+    conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
-    print(ticket)
-    instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '4cdd03f7-eebc-4597-9469-2325aa17cc94')"
+    instruction = f"SELECT * FROM jobs WHERE job_id = '{ticket}'"
     
-    exists = cursor.execute(instruction).fetchone()[0]
-    if exists < 0:
+    exists = cursor.execute(instruction).fetchone()
+
+    if exists[0] != ticket:
         return (-1)
     else:
-        instruction = f"SELECT EXISTS (SELECT 1 FROM jobs WHERE job_id = '{ticket}' AND ready = TRUE)"
-        ready = cursor.execute(instruction).fetchone()[0]
-        if ready > 0:
-            return 1    
-        return 0  
-
+        if exists[1] == token:
+            ready = exists[2]
+            print (ready)
+            if ready > 0:
+                return 1    
+            return 0  
+        else:
+            return -2
     
    
 
@@ -82,7 +84,7 @@ class Jobs (Resource):
                 
                 if not os.path.exists("Database"):
                     os.makedirs("Database")
-                conn = sql.connect("Database/enrrichmentDB.db")
+                conn = sql.connect("./Database/enrrichmentDB.db")
                 cursor = conn.cursor()
                 cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
                 instruction = f"INSERT INTO jobs VALUES ('{ticket}','{token}',FALSE)"
@@ -105,17 +107,19 @@ class Jobs (Resource):
             return resp
 
     def get(self):
+        
         if not request.json:
             resp = jsonify({'message' : 'Please make sure to send a valid request. Your request lacks a json payload.'})
             resp.status_code = 400
             return resp
         entry_dict = request.json
-        if not "tocken" in entry_dict:
+        if not "token" in entry_dict:
             resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a token key'})
             resp.status_code = 400
             return resp 
         token = entry_dict.get("token")
         authorized = token_authentication(token)
+        
         if authorized:
             if not "ticket" in entry_dict:
                 resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a ticket key'})
@@ -123,7 +127,7 @@ class Jobs (Resource):
                 return resp 
             else:
                 ticket = entry_dict.get("ticket")
-                result = check_status(ticket)
+                result = check_status(ticket, token)
                 if result == -1:
                     resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload has an invalid ticket'})
                     resp.status_code = 400
@@ -133,6 +137,10 @@ class Jobs (Resource):
                     resp = jsonify({'message' : 'Your request is yet to be attended. Please try again in a few minutes'})
                     resp.status_code = 200
                     return resp
+                if result == -2:
+                    resp = jsonify({'message' : 'Your request was declined. Only the file owner can see it\' status'})
+                    resp.status_code = 400
+                    return resp    
                 else:   
                     resp = jsonify({'message' : 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'})
                     resp.status_code = 200
@@ -149,7 +157,7 @@ class login(Resource):
             resp.status_code = 401
             return resp
         entry_dict = request.json
-        conn = sql.connect("Database/enrrichmentDB.db")
+        conn = sql.connect("./Database/enrrichmentDB.db")
         cursor = conn.cursor()
         username = entry_dict.get("username")
         
@@ -172,24 +180,29 @@ class login(Resource):
             
 class research_object (Resource):
     def get(self):
-        authorized = token_authentication(request.json.get('token'))
+        token = request.json.get('token')
+        authorized = token_authentication(token)
         if authorized:
-            if 'file' not in request.files:
-                resp = jsonify({'message' : 'No file part in the request. Please make sure to upload the json/jsonld file.'})
-                resp.status_code = 400
-                return resp
-
+            
             if not "ticket" in request.json:
                 resp = jsonify({'message' : 'Please make sure to send a valid request. Your json payload lacks a ticket key'})
                 resp.status_code = 400
                 return resp 
+            if not "token" in request.json:
+                resp = jsonify({'message' : 'Please make sure to send a valid request. It seems like you are not logged in the system.'})
+                resp.status_code = 400
+                return resp 
             else:
                 ticket = request.json.get("ticket")
-                status = check_status(ticket)
+                status = check_status(ticket, token)
                 if status == 1:
                     resp = send_file(app.config['DOWNLOAD_FOLDER'] + '/' + ticket+".jsonld", attachment_filename="lksjdlad")
                     resp.status_code = 200
                     return resp
+                if status == -2:
+                    resp = jsonify({'message' : 'Couldn\' download file. Only the file owner can download the file.'})
+                    resp.status_code = 400
+                    return resp 
                 else:
                     resp = jsonify({'message' : 'Couldn\' download file. Your file isn\'t ready yet.'})
                     resp.status_code = 400
@@ -202,8 +215,8 @@ class research_object (Resource):
 
                 
 def signup(entry_dict:dict):
-    entry_dict = {'username':'user1','userpassword':'password123'}
-    conn = sql.connect("Database/enrrichmentDB.db")
+    entry_dict = {'username':'user2','userpassword':'password123'}
+    conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS users (
     id text NOT NULL UNIQUE PRIMARY KEY,
@@ -243,7 +256,6 @@ def login (entry_dict: dict):
 
 
 
-
 api.add_resource(Jobs,"/api/jobs/")
 api.add_resource(login,"/api/login/")
 api.add_resource(research_object, "/api/research_object/")
@@ -252,6 +264,5 @@ api.add_resource(research_object, "/api/research_object/")
 
 if __name__ == "__main__":
     app.run(debug=True)
-
 
 
