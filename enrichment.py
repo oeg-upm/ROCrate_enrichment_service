@@ -136,11 +136,8 @@ def enrich_RO ():
                 #print(enrichment_RO_raw.get("creator"))
                 if type(enrichment_RO_raw.get("creator")) == list:
                   for creator in enrichment_RO_raw.get("creator"):
-                  
-                          #print (creator)
-                          if type(creator) == dict:
-                                  creator_list.append(creator)
-                  #print (creator_list)
+                        if type(creator) == dict:
+                                creator_list.append(creator)
                 elif type(enrichment_RO_raw.get("creator"))==dict:
                   creator_list.append(enrichment_RO_raw.get("creator"))
                 ro["Creator"] = creator_list
@@ -165,7 +162,6 @@ def enrich_RO ():
                 subject_list = []
                 for subject in enrichment_RO_raw.get("subject"):
                         name = subject.get("$")
-                        #print (name)
                         if name not in subject_list:
                                 subject_list.append(name)
                 ro["research area"] = subject_list
@@ -178,7 +174,7 @@ def enrich_RO ():
           found = "Dataset" in dictionary.get("@type") and "https" in dictionary.get("@id")
           if found:
             RO["@graph"].remove(dictionary)
-            #print(dictionary)
+        
             for creator in ro["Creator"]:
               
               if type(dictionary.get("creator")) == list:
@@ -195,8 +191,7 @@ def enrich_RO ():
                   dictionary["creator"].append({"@id":"http://orcid.org/"+creator.get("@orcid_pending")})
               elif type(dictionary.get("creator")) == dict and creator.get("@orcid_pending").upper() not in dictionary.get("creator").get("@id").upper():
                 dictionary["creator"] = [dictionary.get("creator"),{"@id":"http://orcid.org/"+creator.get("@orcid_pending")}]
-          #print (dictionary)
-          #print (RO["@graph"])
+        
           if type(dictionary.get('publisher')) == dict and not ro.get('publisher') in dictionary.get('publisher').get('@id'):
             dictionary['publisher'] = [dictionary.get('publisher'),{'@id': ro.get('publisher')}]
           elif type(dictionary.get('publisher')) == list:
@@ -230,11 +225,10 @@ def enrich_RO ():
       today = str(dt.date.today())
       if not os.path.exists("log"):
                   os.makedirs("log")
-      f = open("./log/log-"+today, "a")
+      f = open("./log/log-"+today+".txt", "a")
       f.write("Here goes a log")
       f.close()
       
-      # Que deberia retornar esto????
 
       
     time.sleep(60)
