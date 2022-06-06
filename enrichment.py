@@ -1,5 +1,6 @@
 import requests, json, os, time
 import sqlite3 as sql
+import datetime as dt
 
 INPUT_FOLDER = './pending_jobs'
 OUTPUT_FOLDER = './done_jobs'
@@ -226,7 +227,13 @@ def enrich_RO ():
       cursor.execute(instruction) 
       conn.commit()
       conn.close
-    
+      today = str(dt.date.today())
+      if not os.path.exists("log"):
+                  os.makedirs("log")
+      f = open("./log/log-"+today, "a")
+      f.write("Here goes a log")
+      f.close()
+      
       # Que deberia retornar esto????
 
       
