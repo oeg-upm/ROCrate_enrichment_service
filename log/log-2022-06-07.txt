@@ -1,0 +1,38 @@
+************************************************
+15:43:35: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a successfull job post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: 9db876bf-13f7-4fb6-bc6d-13ca0db86b8c'
+************************************************
+15:43:36: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a successfull job post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: ec5e7678-75c5-473a-a876-bee7a0e501ed'
+************************************************
+15:43:45: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a successfull job post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: 60590d90-a9e9-4cb0-a557-1c7b4ddd99ef'
+************************************************
+15:43:47: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a successfull job post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: 20cc6515-dca4-468f-ab35-dc5626fb75d2'
+************************************************
+15:44:30: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a job get request to the system using an a valid ticket.
+Status_code: '200'
+Message: 'Your request is yet to be attended. Please try again in a few minutes'
+************************************************
+15:44:46: An unknown user tried to make a job get request to the system without using the authintication token.
+Status_code: '400'
+Message: 'Please make sure to send a valid request. Your json payload lacks a token key'
+************************************************
+15:44:55: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' tried to make a job get request to the system without using a ticket.
+Status_code: '400'
+Message: 'Please make sure to send a valid request. Your json payload lacks a ticket key'
+************************************************
+15:45:51: The user with the token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' made a job get request to the system using an a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'
+************************************************
+15:46:03: The user with the token 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' downloaded successfully the file related to the ticket '20cc6515-dca4-468f-ab35-dc5626fb75d2'
+Status_code: '200'
+************************************************
+15:46:24: The user with the token 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjFhNmRkMmE0LWVmYzgtNGIzYS1iNzMxLWZjOWRhZGM4OGE4NCJ9.aXpfHAY-O_7wT269tZPUxodM0Lv4N13xkU0E5lyN1-4' downloaded successfully the file related to the ticket '20cc6515-dca4-468f-ab35-dc5626fb75d2'
+Status_code: '200'
