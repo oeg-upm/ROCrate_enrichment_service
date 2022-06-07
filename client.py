@@ -28,7 +28,7 @@ data = {
 
 
 def signup(entry_dict:dict):
-    entry_dict = {'username':'user3','userpassword':'password123'}
+    entry_dict = {'username':'user5','userpassword':'password123'}
     conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS users (

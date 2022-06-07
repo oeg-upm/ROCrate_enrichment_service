@@ -23,15 +23,20 @@ def allowed_file(filename):
     	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
  
 def token_authentication (token):
-    data = jwt.decode(token, app.config['SECRET_KEY'], "HS256")
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], "HS256")
+    except:
+        return False    
     id = data.get("id")
+    
     conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
-    instruction = f"SELECT 1 FROM users WHERE id = '{id}'"
-    result = cursor.execute(instruction)
+   
+    instruction = f"SELECT username FROM users WHERE id = '{id}'"
+    result = cursor.execute(instruction).fetchone()
     if result:
         CURRENT_USER = result
-        return True
+        return result[0]
     return False
 
 def check_status (ticket: str, token: str):
@@ -41,7 +46,8 @@ def check_status (ticket: str, token: str):
     
     result = cursor.execute(instruction).fetchone()
 
-    if result[0] != ticket:
+    
+    if not result:
         return (-1)
     else:
         if result[2] == token:
@@ -58,12 +64,9 @@ class Jobs (Resource):
     def post(self):
         token = json.loads(request.form.to_dict(flat=False).get('token')[0]).get("token")
         conn = sql.connect("./Database/enrrichmentDB.db")
-        cursor = conn.cursor()
-        instruction = f"SELECT * FROM users WHERE id = '{token}'"
-        user = cursor.execute(instruction).fetchone()[1]
-
-        authorized = token_authentication(token)
-        if authorized:
+        
+        user = token_authentication(token)
+        if user:
             if 'file' not in request.files:
                 message = 'No file part in the request. Please make sure to upload the json/jsonld file.'
                 resp = jsonify({'message' : message})
@@ -193,12 +196,9 @@ class Jobs (Resource):
             log_file.close()
             return resp 
         token = entry_dict.get("token")
-        authorized = token_authentication(token)
-        conn = sql.connect("./Database/enrrichmentDB.db")
-        cursor = conn.cursor()
-        instruction = f"SELECT * FROM users WHERE id = '{token}'"
-        user = cursor.execute(instruction).fetchone()[1]
-        if authorized:
+        user = token_authentication(token)
+        
+        if user:
             if not "ticket" in entry_dict:
                 message = 'Please make sure to send a valid request. Your json payload lacks a ticket key'
                 resp = jsonify({'message' : message})
@@ -316,14 +316,11 @@ class login(Resource):
             if check_password_hash(user[2],entry_dict.get("userpassword")):
                 CURRENT_USER = user
                 token = jwt.encode({'id':user[0]}, SECRET_KEY, "HS256")
-                conn = sql.connect("./Database/enrrichmentDB.db")
-                cursor = conn.cursor()
-                instruction = f"SELECT * FROM users WHERE id = '{token}'"
-                user = cursor.execute(instruction).fetchone()[1]
+                
+                user = user [1]
                 message = 'Logged in successfully. Please recover your token'
                 resp = jsonify ({'message':message, 'token':token})
                 resp.status_code = 200
-                conn.close()
 
                 today = str(dt.date.today())
                 if not os.path.exists("log"):
@@ -353,8 +350,8 @@ class login(Resource):
 class research_object (Resource):
     def get(self):
         token = request.json.get('token')
-        authorized = token_authentication(token)
-        if authorized:
+        user = token_authentication(token)
+        if user:
             if not "token" in request.json:
                 message = 'Please make sure to send a valid request. It seems like you are not logged in the system.'
                 resp = jsonify({'message' : message})
@@ -371,10 +368,6 @@ class research_object (Resource):
                 return resp
             
             token = request.json.get("token")
-            conn = sql.connect("./Database/enrrichmentDB.db")
-            cursor = conn.cursor()
-            instruction = f"SELECT * FROM users WHERE id = '{token}'"
-            user = cursor.execute(instruction).fetchone()[1]
             if not "ticket" in request.json:
                 message = 'Please make sure to send a valid request. Your json payload lacks a ticket key'
                 resp = jsonify({'message' : message})
@@ -393,7 +386,7 @@ class research_object (Resource):
             else:
                 ticket = request.json.get("ticket")
                 status = check_status(ticket, token)
-                
+                print(status)
                 if status == -2:
                     message = 'Couldn\'t download file. Only the file owner can download the file.'
                     resp = jsonify({'message' : message})
@@ -407,6 +400,7 @@ class research_object (Resource):
                     log = f"************************************************\n{log_time}: The user with the username '{user}' sent a download request for a file belonging to other user.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
                     log_file.writelines(log)            
                     log_file.close()
+                    return resp
                 if status == -1:
                     message = 'Couldn\'t download file. The ticket you entered isn\'t valid.'
                     resp = jsonify({'message' : message})
@@ -420,6 +414,7 @@ class research_object (Resource):
                     log = f"************************************************\n{log_time}: The user with the username '{user}' sent a download request with an invalid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
                     log_file.writelines(log)            
                     log_file.close()   
+                    return resp
                 if status == 0:
                     message = 'Couldn\' download file. Your file isn\'t ready yet.'
                     resp = jsonify({'message' : message})
@@ -433,19 +428,21 @@ class research_object (Resource):
                     log = f"************************************************\n{log_time}: The user with the username '{user}' sent a download request for a file that isn't ready yet.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
                     log_file.writelines(log)            
                     log_file.close() 
-
+                    return resp
                 else:
                     resp = send_file(app.config['DOWNLOAD_FOLDER'] + '/' + ticket+".jsonld", attachment_filename="enriched_"+status)
                     resp.status_code = 200
+                    message = "Downloaded successfully"
                     today = str(dt.date.today())
                     if not os.path.exists("log"):
                         os.makedirs("log")
                     log_file = open("./log/log-"+today+".txt", "a")
                     log_time = time.localtime()
                     log_time = time.strftime("%H:%M:%S", log_time)
-                    log = f"************************************************\n{log_time}: The user with the username '{user}' downloaded successfully the file related to the ticket '{ticket}'\nStatus_code: '{resp.status_code}'\n"
+                    log = f"************************************************\n{log_time}: The user with the username '{user}' downloaded successfully the file related to the ticket '{ticket}'\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
                     log_file.writelines(log)            
                     log_file.close() 
+                    return resp
         else:
             message = 'You are not allowed to perform this request. Please make sure that you are logged in to the service.'
             resp = jsonify({'message' : message})
