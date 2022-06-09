@@ -76,6 +76,7 @@ After recieving the input payload this method compares with the saved jobs in th
 Path: `/api/research_object/`
 
 Available methods: GET
+
 This get method recieves a json payload with the following format:
 `{"token":"valid_user_token","ticket":"valid_ticket"}`
 When the payload is recieved, the method has a similar behavior to the GET jobs method. In other words, it makes sure that the user is authorized, the ticket is valid, the ticket belongs to the same user and finally that the status is set to "ready". After the verification, the method sends the new file to the user.
