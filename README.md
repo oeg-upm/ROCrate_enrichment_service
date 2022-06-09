@@ -2,7 +2,7 @@
 ## AUTHOR: George Hadib
 
 # Introduction:
-ROCrate_enrichment_service is an metadata enrichment service for research objects created in RO-Crate format. The service offers a RESTFUL API built with the FLASK library for python. It receives a json/jsonld file and uses the API of the service of OpenAire to asociate more metadata to the original file before it returns another RO-Crate in jsonld format. Signing up to the service is a manual process managed locally by the service provider. Passwords are encrypted using the sha256 algorithm. However, the rest of the operations are available through the public API.
+ROCrate_enrichment_service is a metadata enrichment service for research objects created in RO-Crate format. The service offers a RESTFUL API built with the FLASK library for python. It receives a json/jsonld file and uses the API of the service of OpenAire to asociate more metadata to the original file before it returns another RO-Crate in jsonld format. Signing up to the service is a manual process managed locally by the service provider. Passwords are encrypted using the sha256 algorithm. However, the rest of the operations are available through the public API.
 
 # Database:
 The following diagram represents the database used in this project:
