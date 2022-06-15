@@ -86,16 +86,20 @@ When the payload is received, the method has a similar behavior to the GET jobs 
 ## Requirements:
 To run the server make sure to have python3.10 and pip installed in your machine and then follow the following steps:
 Step 1 : Clone the repository
+
 `git clone https://github.com/oeg-upm/ROCrate_enrichment_service.git`
 
 Step 2 : Go inside the folder
+
 `cd ROCrate_enrichment_service`
 
 Step 3 : Install requirements
-pip install -r requirements.txt *this might take a while
+
+`pip install -r requirements.txt *this might take a while`
 
 Step 4 : Run the application
-python run.py
+
+`python3 API_Server_v2.py`
 
 
 
