@@ -113,9 +113,7 @@ class Jobs (Resource):
                 if not os.path.exists("Database"):
                     os.makedirs("Database")
                 conn = sql.connect("./Database/enrrichmentDB.db")
-                cursor = conn.cursor()
-                cursor.execute("""DROP TABLE jobs""")
-                
+                cursor = conn.cursor()                
                 cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, original_name text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
                 instruction = f"INSERT INTO jobs VALUES ('{ticket}','{file.filename}','{token}',FALSE)"
                 cursor.execute(instruction)
@@ -508,6 +506,5 @@ api.add_resource(research_object, "/api/research_object/")
 # Execution
 
 if __name__ == "__main__":
+    print ("Server is up and running")
     app.run(debug=True)
-
-
