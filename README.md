@@ -4,24 +4,6 @@
 # Introduction:
 ROCrate_enrichment_service is a metadata enrichment service for research objects created in RO-Crate format. The service offers a RESTFUL API built with the FLASK library for python. It receives a json/jsonld file and uses the API of the service of OpenAire to asociate more metadata to the original file before it returns another RO-Crate in jsonld format. Signing up to the service is a manual process managed locally by the service provider. Passwords are encrypted using the sha256 algorithm. However, the rest of the operations are available through the public API.
 
-# Database:
-The following diagram represents the database used in this project:
-
-![image](https://user-images.githubusercontent.com/17781274/172913965-6cac0d06-232d-4b74-9806-18e1df234d89.png)
-
-The databse was built with SQLite and contains two tables:
-## users:
-This table contains the authorized users of the service. The primary key of an entry is the id which is an unique id created by the uuid functionality.
-Passwords are hashed with sha256 before being saved in the database
-admin is 0 by default
-
-## jobs:
-This table contains the jobs that are uploaded to the service, their original name, their owner and their status.
-job_id is the primary key and as for users it's created by uuid. This same uuid is used for the temporary naming of the uploaded files.
-The original name of the uploaded file is saved in order to use it again for the download
-client is a foreign key inherited from the users table and refers to the owner of a job
-A value of 1 in the ready column means that the RO was enriched and a 0 means that it's yet to be enriched
-
 # Enrichment App:
 The enrichment app is the core of this project. It's an app that infinitively and periodically does the following sequence of operations:
 
@@ -39,7 +21,7 @@ The enrichment app is the core of this project. It's an app that infinitively an
  6. The app sleeps during one minute and then returns to step 1.
 
 # Deletion App:
-The deletion app is an app that runs periodically (every second day) and empties the project folders from unnecessary json files
+The deletion app is an app that runs periodically (every second day) and empties the program's input and owtput folders from unnecessary json files
 
 # The API:
 The project has a restful API designed with flask on python. The API has 3 resources that will be explained afterwards:
@@ -83,7 +65,7 @@ When the payload is received, the method has a similar behavior to the GET jobs 
 
 
 # How to use?
-## Requirements:
+## Deployment:
 To run the server make sure to have python3.10 and pip installed in your machine and then follow the following steps:
 Step 1 : Clone the repository
 
@@ -95,11 +77,11 @@ Step 2 : Go inside the folder
 
 Step 3 : Install requirements
 
-`pip install -r requirements.txt *this might take a while`
+`pip install -r requirements.txt`
 
 Step 4 : Run the application
 
-`python3 API_Server_v2.py`
+`py run.py`, `py3 run.py`, `python run.py` or `python3 run.py`. This depends on your local environment.
 
 
 
