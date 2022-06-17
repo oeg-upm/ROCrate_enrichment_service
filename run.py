@@ -7,7 +7,7 @@ from crontab import CronTab
 
 
 def run_deletion():
-        cron = CronTab(user='Geo') 
+        cron = CronTab(user="root")
         task = cron.new(command='py deletion.py') 
         task.day.every(2)
         cron.write()
