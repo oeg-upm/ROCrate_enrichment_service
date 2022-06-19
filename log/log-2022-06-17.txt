@@ -1,0 +1,7 @@
+************************************************
+14:19:24: The user with the username: 'user2' made a successfull job post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: 6f9bc3ea-a90b-49fd-adfa-2bcb297ffd63'
+************************************************
+14:20:04:Loggy loggy file
+

@@ -79,7 +79,10 @@ Step 3 : Install requirements
 
 `pip install -r requirements.txt`
 
-Step 4 : Run the application
+Step 4 : Create a new user
+. In order to do so, open the script called client.py with a text editor, edit the dictionary called entry_json in line #35 with your username and password and finally run the script. 
+
+Step 5 : Run the application
 
 `py run.py`, `py3 run.py`, `python run.py` or `python3 run.py`. This depends on your local environment.
 

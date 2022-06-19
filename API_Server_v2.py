@@ -508,3 +508,4 @@ api.add_resource(research_object, "/api/research_object/")
 if __name__ == "__main__":
     print ("Server is up and running")
     app.run(debug=True)
+    #app.run(debug=True,host="0.0.0.0",port=8000)
