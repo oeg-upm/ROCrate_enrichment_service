@@ -10,7 +10,6 @@ UPLOAD_FOLDER = './pending_jobs'
 DOWNLOAD_FOLDER = './done_jobs'
 SECRET_KEY = 'UPMROCRATEENRICHMENTSERVICE'
 ALLOWED_EXTENSIONS = {'json', 'jsonld'}
-CURRENT_USER = {}
 
 # Start the flask API app
 app = Flask(__name__)
@@ -18,6 +17,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 app.config['SECRET_KEY'] = SECRET_KEY
 api = Api(app)
+
+
+    
+    
 
 def allowed_file(filename):
     	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -35,7 +38,6 @@ def token_authentication (token):
     instruction = f"SELECT username FROM users WHERE id = '{id}'"
     result = cursor.execute(instruction).fetchone()
     if result:
-        CURRENT_USER = result
         return result[0]
     return False
 
@@ -114,7 +116,6 @@ class Jobs (Resource):
                     os.makedirs("Database")
                 conn = sql.connect("./Database/enrrichmentDB.db")
                 cursor = conn.cursor()                
-                cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (job_id text NOT NULL, original_name text NOT NULL, client text NOT NULL, ready boolean NOT NULL)""")
                 instruction = f"INSERT INTO jobs VALUES ('{ticket}','{file.filename}','{token}',FALSE)"
                 cursor.execute(instruction)
                 conn.commit()
@@ -312,7 +313,6 @@ class login(Resource):
         result = cursor.execute (instruction)
         for user in result.fetchall():
             if check_password_hash(user[2],entry_dict.get("userpassword")):
-                CURRENT_USER = user
                 token = jwt.encode({'id':user[0]}, SECRET_KEY, "HS256")
                 
                 user = user [1]
@@ -384,7 +384,6 @@ class research_object (Resource):
             else:
                 ticket = request.json.get("ticket")
                 status = check_status(ticket, token)
-                print(status)
                 if status == -2:
                     message = 'Couldn\'t download file. Only the file owner can download the file.'
                     resp = jsonify({'message' : message})
@@ -457,26 +456,6 @@ class research_object (Resource):
             return resp
 
                 
-def signup(entry_dict:dict):
-    entry_dict = {'username':'user2','userpassword':'password123'}
-    conn = sql.connect("./Database/enrrichmentDB.db")
-    cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS users (
-    id text NOT NULL UNIQUE PRIMARY KEY,
-    username text NOT NULL, 
-    userpassword text NOT NULL,
-    admin boolean DEFAULT 0)""")
-    username = entry_dict.get("username")
-    userpassword = generate_password_hash(entry_dict.get("userpassword"), method= 'sha256')
-    id = str(uuid.uuid4())
-    instruction = f"INSERT INTO users VALUES ('{id}','{username}','{userpassword}', 0)"
-    result = cursor.execute(instruction)
-    conn.commit()
-    conn.close()
-    if result:
-        return jsonify({'message':'New user was created'}), 201
-    return jsonify({'message' : 'Something went wrong. Please make sure to enter both username and password.'}), 401
-
 
 '''
 def login (entry_dict: dict):
@@ -506,6 +485,5 @@ api.add_resource(research_object, "/api/research_object/")
 # Execution
 
 if __name__ == "__main__":
-    print ("Server is up and running")
-    app.run(debug=True)
-    #app.run(debug=True,host="0.0.0.0",port=8000)
+    #app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0",port=5000)

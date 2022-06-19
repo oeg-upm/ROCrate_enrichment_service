@@ -184,7 +184,6 @@ def enrich_RO ():
 
                   if creator.get("@orcid_pending").upper() in creator_dict.get("@id").upper():
                     aux_bool = True
-                    print("We are here")
 
                   
                 if not (aux_bool):
@@ -221,14 +220,13 @@ def enrich_RO ():
       instruction = f"UPDATE jobs SET ready = TRUE WHERE job_id = '{ticket}';"
       cursor.execute(instruction) 
       conn.commit()
-      conn.close
+      conn.close()
       today = str(dt.date.today())
       if not os.path.exists("log"):
         os.makedirs("log")
       log_file = open("./log/log-"+today+".txt", "a")
       log_time = time.localtime()
       log_time = time.strftime("%H:%M:%S", log_time)
-      print(log_time)
       log = f"************************************************\n{log_time}:Loggy loggy file\n\n"
       log_file.writelines(log)
       log_file.writelines("")

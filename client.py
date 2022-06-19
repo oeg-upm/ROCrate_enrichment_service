@@ -16,11 +16,6 @@ def signup(entry_dict:dict):
     conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
                    
-    cursor.execute("""CREATE TABLE IF NOT EXISTS users (
-    id text NOT NULL UNIQUE PRIMARY KEY,
-    username text NOT NULL, 
-    userpassword text NOT NULL,
-    admin boolean DEFAULT 0)""")
     username = entry_dict.get("username")
     userpassword = generate_password_hash(entry_dict.get("userpassword"), method= 'sha256')
     id = str(uuid.uuid4())

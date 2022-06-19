@@ -1,5 +1,6 @@
 import threading, enrichment, API_Server_v2
 from crontab import CronTab
+import sqlite3 as sql
 
 
 
@@ -19,17 +20,37 @@ def run_enrichment():
  
             
 def run_server():
-        API_Server_v2.app.run()
+        API_Server_v2.app.run(debug=True,host="0.0.0.0",port=5000)
         print("API_Server_v2.py is up and running")
         
         
+def create_database():
+    conn = sql.connect("./Database/enrrichmentDB.db")
+    cursor = conn.cursor()                
+    cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+    id text NOT NULL UNIQUE PRIMARY KEY,
+    username text NOT NULL, 
+    userpassword text NOT NULL,
+    admin boolean DEFAULT 0)""")
+    
+    cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (
+    job_id text NOT NULL, 
+    original_name text NOT NULL, 
+    client text NOT NULL, 
+    ready boolean NOT NULL)""")
+    conn.close()
+    return
+    
+
+    
+    
 
 
-t1= threading.Thread(target=run_server)
-t2= threading.Thread(target=run_enrichment)
-t3= threading.Thread(target=run_deletion)
+create_database()
+t1= threading.Thread(target=run_enrichment)
+t2= threading.Thread(target=run_deletion)
+t1.setDaemon(True)
 t2.setDaemon(True)
-t3.setDaemon(True)
 t1.start()
 t2.start()
-t3.start()
+run_server()
