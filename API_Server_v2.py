@@ -5,10 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
-
 UPLOAD_FOLDER = './pending_jobs'
 DOWNLOAD_FOLDER = './done_jobs'
-SECRET_KEY = 'UPMROCRATEENRICHMENTSERVICE'
+SECRET_KEY = 'MY_PASSWORD'
 ALLOWED_EXTENSIONS = {'json', 'jsonld'}
 
 # Start the flask API app

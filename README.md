@@ -82,6 +82,9 @@ Step 3 : Install requirements
 Step 4 : Create a new user
 . In order to do so, open the script called client.py with a text editor, edit the dictionary called entry_json in line #30 with your username and password and finally run the script. 
 
+Step 5 : Change the SECRET_KEY used to encrypt the passwords to a key of your choice. 
+. To do so, open the script called API_Server_v2.py with a text editor and enter the new key in the variable SECRET_KEY in line #10
+
 Step 5 : Run the application
 
 `py run.py`, `py3 run.py`, `python run.py` or `python3 run.py`. This depends on your local environment.
