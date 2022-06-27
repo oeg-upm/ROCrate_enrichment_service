@@ -10,7 +10,16 @@ import sqlite3 as sql
 #resp = requests.post('http://localhost:8008', data=data)
 
 #print (resp)
-
+conn = sql.connect("./Database/enrrichmentDB.db")
+cursor = conn.cursor()
+cursor.execute("""DROP TABLE jobs""")
+cursor.execute("""CREATE TABLE IF NOT EXISTS jobs (
+    job_id text NOT NULL, 
+    original_name text NOT NULL, 
+    client text NOT NULL, 
+    ready boolean NOT NULL)""")
+print (1)
+conn.close()
 
 def signup(entry_dict:dict):
     conn = sql.connect("./Database/enrrichmentDB.db")
@@ -29,11 +38,11 @@ def signup(entry_dict:dict):
   
 entry_dict = {'username':'NEW_USERNAME','userpassword':'NEW_PASSWORD'}
 
-  
+''' 
 if __name__ == "__main__":
   
   signup(entry_dict)
-  
+'''
 
   
   

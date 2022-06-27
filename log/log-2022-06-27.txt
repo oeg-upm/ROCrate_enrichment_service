@@ -1,0 +1,24 @@
+************************************************
+13:00:24: The user with the username: 'NEW_USERNAME' logged in successfully to the system.
+Status_code: '200'
+Message: 'Logged in successfully. Please recover your token'
+************************************************
+14:56:23: The user with the username: '<__main__.Job object at 0x00000245786960E0>' tried to make a job get request to a file owned by other user.
+Status_code: '401'
+Message: 'Your request was declined. Only the file owner can see it's status'
+************************************************
+14:59:01: The user with the username: '<__main__.Job object at 0x00000240CD9261A0>' tried to make a job get request to a file owned by other user.
+Status_code: '401'
+Message: 'Your request was declined. Only the file owner can see it's status'
+************************************************
+16:55:56: The user with the username: 'NEW_USERNAME' made a job get request to the system using an a valid ticket.
+Status_code: '200'
+Message: 'Your request is yet to be attended. Please try again in a few minutes'
+************************************************
+16:56:21: The user with the username: 'NEW_USERNAME' tried to make a job get request to a file owned by other user.
+Status_code: '401'
+Message: 'Your request was declined. Only the file owner can see it's status'
+************************************************
+17:03:02: The user with the username 'NEW_USERNAME' sent a download request for a file that isn't ready yet.
+Status_code: '400'
+Message: 'Couldn' download file. Your file isn't ready yet.'
