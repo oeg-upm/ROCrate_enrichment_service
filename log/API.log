@@ -36,3 +36,22 @@ Message: 'Your request is ready. Please use your ticket to request your file fro
 Status_code: '200'
 Message: 'Downloaded successfully'
 **********************************************
+2022-06-27 23:29:06,383 INFO: The user with the username: 'USER123' logged in successfully to the system.
+Status_code: '200'
+Message: 'Logged in successfully. Please recover your token'
+**********************************************
+2022-06-27 23:30:06,396 INFO: The user with the username: 'USER123' made a successful jobs Post request.
+Status_code: '201'
+Message: 'File successfully uploaded. Please recover your ticket: 7f7cb866-3815-43b4-b0ed-fb88fb03b8e5'
+**********************************************
+2022-06-27 23:30:21,174 INFO: The user with the username: 'USER123' made a jobs Get request.
+Status_code: '200'
+**********************************************
+2022-06-27 23:30:39,456 INFO: The user with the username: 'USER123' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/7f7cb866-3815-43b4-b0ed-fb88fb03b8e5/'
+**********************************************
+2022-06-27 23:30:58,176 INFO: The user with the username 'USER123' downloaded successfully the file related to the ticket '7f7cb866-3815-43b4-b0ed-fb88fb03b8e5'.
+Status_code: '200'
+Message: 'Downloaded successfully'
+**********************************************

@@ -523,6 +523,7 @@ api.add_resource(research_object, "/api/research_object/<string:ticket>/")
 
 # Execution
 
+
 if __name__ == "__main__":
     #app.run(debug=True)
     config_logger()
