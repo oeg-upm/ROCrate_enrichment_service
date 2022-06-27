@@ -20,7 +20,8 @@ def run_enrichment():
  
             
 def run_server():
-        API_Server_v2.app.run(debug=True,host="0.0.0.0",port=5000)
+        API_Server_v2.config_logger()
+        API_Server_v2.serve(API_Server_v2.app,host="0.0.0.0",port=5000)
         print("API_Server_v2.py is up and running")
         
         

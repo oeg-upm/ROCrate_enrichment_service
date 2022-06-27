@@ -346,7 +346,8 @@ class Job (Resource):
             return resp    
         else:   
             message = f"Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/{ticket}/"
-            resp = jsonify({'message' : message})
+            link = f"http://hostname.upm.es/api/research_object/{ticket}/"
+            resp = jsonify({'message' : message, "link":link})
             resp.status_code = 200
             
             if not os.path.exists("log"):

@@ -1,6 +1,7 @@
 Flask==2.1.2
 Flask_RESTful==0.3.9
 PyJWT==2.4.0
+python_crontab==2.6.0
 requests==2.27.1
+waitress==2.1.2
 Werkzeug==2.1.2
-python-crontab==2.6.0
