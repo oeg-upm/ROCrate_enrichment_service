@@ -1,0 +1,38 @@
+2022-06-27 20:15:14,318 DEBUG: The user with the username: 'NEW_USERNAME' made a job post request without attaching any file.
+Status_code: '400'
+Message: 'No file part in the request. Please make sure to upload the json/jsonld file.'
+**********************************************
+
+2022-06-27 20:15:32,673 DEBUG: The user with the username: 'NEW_USERNAME' made a job post request without attaching any file.
+Status_code: '400'
+Message: 'No file part in the request. Please make sure to upload the json/jsonld file.'
+**********************************************
+
+2022-06-27 20:55:19,717 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is yet to be attended. Please try again in a few minutes'
+**********************************************
+2022-06-27 20:55:52,460 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'
+**********************************************
+2022-06-27 20:56:48,908 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'
+**********************************************
+2022-06-27 20:56:58,687 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'{ticket}'/'
+**********************************************
+2022-06-27 20:57:18,436 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'b82dc19a-f919-45da-a56f-7565a47e32ad'/'
+**********************************************
+2022-06-27 20:57:38,098 INFO: The user with the username: 'NEW_USERNAME' made a successful job get request to the system using a valid ticket.
+Status_code: '200'
+Message: 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/b82dc19a-f919-45da-a56f-7565a47e32ad/'
+**********************************************
+2022-06-27 20:58:41,058 INFO: The user with the username 'NEW_USERNAME' downloaded successfully the file related to the ticket 'b82dc19a-f919-45da-a56f-7565a47e32ad'.
+Status_code: '200'
+Message: 'Downloaded successfully'
+**********************************************

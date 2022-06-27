@@ -1,7 +1,11 @@
+from distutils.log import debug
 from flask import Flask, request, jsonify, send_file
 from flask_restful import Api, Resource
-import os, uuid, jwt, json, time, datetime as dt, sqlite3 as sql, logging
+import os, uuid, jwt, json, time, datetime as dt, sqlite3 as sql, logging,logging
+from waitress import serve
+
 from werkzeug.security import  check_password_hash, generate_password_hash
+from logging import Formatter
 from logging.handlers import TimedRotatingFileHandler
 from functools import wraps
 
@@ -12,24 +16,39 @@ from functools import wraps
 UPLOAD_FOLDER = './pending_jobs'
 DOWNLOAD_FOLDER = './done_jobs'
 SECRET_KEY = 'MY_PASSWORD'
+LOGGING_FOLDER = './log'
 ALLOWED_EXTENSIONS = {'json', 'jsonld'}
-
 
 # Start the flask API app
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
+app.config["LOGGING_FOLDER"] = LOGGING_FOLDER
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['CURRENT_USER'] = None
-api = Api(app)
+api = Api(app)  
 
-logger = logging.getLogger('simple')
-logger.setLevel(logging.DEBUG)
-logname = "my_app.log"
-handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
-handler.suffix = "%d%m%Y"
-logger.addHandler(handler)    
+
+def config_logger():
+    logname = app.config["LOGGING_FOLDER"] + "/API.log"
+    app.logger.setLevel(logging.DEBUG)   
     
+    formatter = Formatter('%(asctime)s %(levelname)s: %(message)s')
+    handler = TimedRotatingFileHandler(filename = logname, when="midnight", interval=1)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+    handler.suffix = "%d%m%Y"
+    app.logger.handlers.clear()
+    app.logger.addHandler(handler) 
+    #app.logger.debug("debuggggggggggggg")
+    
+    
+
+
+'''def log_file ():
+    today = str(dt.date.today())            
+    log_file = open("./log/log-"+today+".txt", "a")
+    return log_file'''
 
 def allowed_file(filename):
     	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -119,33 +138,27 @@ class Jobs (Resource):
     
     @token_required
     def post(self, result):
-        print(app.config["CURRENT_USER"])
-        
+        user_id = app.config["CURRENT_USER"][0]
+        username = app.config["CURRENT_USER"][1]        
         if 'file' not in request.files:
-            print("AQUI")
 
             message = 'No file part in the request. Please make sure to upload the json/jsonld file.'
             resp = jsonify({'message' : message})
             resp.status_code = 400
-            today = str(dt.date.today())
             
             #ATENCION AQUI CON EL LOG
-            '''
+            
             if not os.path.exists("log"):
                 os.makedirs("log")
             
             
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
             
-            logging.debug (f"************************************************\n{log_time}: The user with the username: '{user}' made a job post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n")
-            log = f"************************************************\n{log_time}: The user with the username: '{user}' made a job post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+            
+            app.logger.info (msg=f"The user with the username: '{username}' made a jobs Post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************")
+            
             
             #########################################################
-            '''
+            
             return resp
             
         file = request.files['file']
@@ -157,20 +170,15 @@ class Jobs (Resource):
             
             resp = jsonify({'message' : message})
             resp.status_code = 400
-            today = str(dt.date.today())
-            '''
+            
             #ATENCION AQUI CON EL LOG
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            logging.debug(f"************************************************\n{log_time}: The user with the username: '{user}' made a job post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n")
-            log = f"************************************************\n{log_time}: The user with the username: '{user}' made a job post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+            
+            app.logger.info (msg=f"The user with the username: '{username}' made a jobs Post request without attaching any file.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+          
             ##########################################################
-            '''
+            
             
             return resp
 
@@ -195,21 +203,16 @@ class Jobs (Resource):
             message = 'File successfully uploaded. Please recover your ticket: '+ ticket
             resp = jsonify({'message' : message, 'ticket' : ticket})
             resp.status_code = 201
-            today = str(dt.date.today())
             
             #ATENCION AQUI CON EL LOG
-            '''
+            
             
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            logging.DEBUG(f"************************************************\n{log_time}: The user with the username: '{user}' made a successfull job post request.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n")
-            log = f"************************************************\n{log_time}: The user with the username: '{user}' made a successfull job post request.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
-            '''
+                
+            app.logger.info (msg=f"The user with the username: '{username}' made a successful jobs Post request.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+            
             ################################################
             return resp
 
@@ -217,19 +220,14 @@ class Jobs (Resource):
             message = 'Please make sure to upload a valid file type. Allowed file types are json and jsonld'
             resp = jsonify({'message' : message})
             resp.status_code = 400
-            today = str(dt.date.today())
             
             #ATENCION AQUI CON EL LOG
             username = app.config["CURRENT_USER"][1]
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' made a job post request attaching a file with an improper extention.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
-            
+                        
+            app.logger.info (msg=f"The user with the username: '{username}' made a jobs post request attaching a file with an improper extention.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
             ####################################################
             
             return resp
@@ -238,19 +236,27 @@ class Jobs (Resource):
     @token_required
     def get(self,result):
         user_id = app.config["CURRENT_USER"][0]
+        username = app.config["CURRENT_USER"][1]
         conn = sql.connect("./Database/enrrichmentDB.db")
         cursor = conn.cursor()
         instruction = f"SELECT * FROM jobs WHERE client = '{user_id}'"
         result = cursor.execute(instruction).fetchall()
+        resp = jsonify({"jobs":result})
+        resp.status_code = 200
+        app.logger.info (msg=f"The user with the username: '{username}' made a jobs Get request.\nStatus_code: '{resp.status_code}'\n**********************************************") 
+
         
-        
-        return result
+        return resp
+    
+
         
     
     
 class Job (Resource):    
     @token_required
     def get(self,  result, ticket):
+        user_id = app.config["CURRENT_USER"][0]
+        username = app.config["CURRENT_USER"][1]
         if not ticket:
             #AQUI HAY QUE PRESTAR ATENCION
         
@@ -259,17 +265,11 @@ class Job (Resource):
             resp.status_code = 400
             
             # AQUI ATENCION CON EL LOG
-            username = app.config["CURRENT_USER"][1]
-            today = str(dt.date.today())
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' tried to make a job get request to the system without attaching any json payload.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
             
+            app.logger.info (msg=f"The user with the username: '{username}' tried to make a job get request to the system without using any ticker.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
             ######################################################
             
             return resp
@@ -307,66 +307,54 @@ class Job (Resource):
                 log_file.close()
                 return resp 
             else:'''
-        user_id = app.config["CURRENT_USER"][0]
-        username = app.config["CURRENT_USER"][1]
+        
 
         result = check_status(ticket, user_id)
         if result == -1:
             message = 'Please make sure to send a valid request. Your json payload has an invalid ticket'
             resp = jsonify({'message' : message})
             resp.status_code = 404
-            today = str(dt.date.today())
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' tried to make a job get request to the system using an invalid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+            
+            app.logger.info (msg=f"The user with the username: '{username}' tried to make a job get request to the system using an invalid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+            
             return resp                
                 
         if result == 0:
             message = 'Your request is yet to be attended. Please try again in a few minutes'
             resp = jsonify({'message' : message})
             resp.status_code = 200
-            today = str(dt.date.today())
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' made a job get request to the system using an a valid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+           
+            
+            app.logger.info (msg=f"The user with the username: '{username}' made a successful job get request to the system using a valid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
             return resp 
         if result == -2:
             message = 'Your request was declined. Only the file owner can see it\'s status'
             resp = jsonify({'message' : message})
             resp.status_code = 401
-            today = str(dt.date.today())
+
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' tried to make a job get request to a file owned by other user.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+           
+            app.logger.info (msg=f"The user with the username: '{username}' tried to make a job get request to a file owned by other user.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
             return resp    
         else:   
-            message = 'Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/'
+            message = f"Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/{ticket}/"
             resp = jsonify({'message' : message})
             resp.status_code = 200
-            today = str(dt.date.today())
+            
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username: '{username}' made a job get request to the system using an a valid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+   
+            app.logger.info (msg=f"The user with the username: '{username}' made a successful job get request to the system using a valid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+            
             return resp
         '''else:
             message = 'You are not allowed to perform this request. Please make sure that you are logged in to the service.'
@@ -390,15 +378,12 @@ class login(Resource):
             message = 'Please make sure to send a valid request. Your request is missing a username and/or a password'
             resp = jsonify ({'message' : message})
             resp.status_code = 401
-            today = str(dt.date.today())
+
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: An unknown user tried to login to the system without providing any credentials.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+     
+            app.logger.info (msg=f"An unknown user tried to login to the system without providing any credentials.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
             return resp
         entry_dict = request.json
         conn = sql.connect("./Database/enrrichmentDB.db")
@@ -417,113 +402,95 @@ class login(Resource):
                 resp = jsonify ({'message':message, 'token':token})
                 resp.status_code = 200
 
-                today = str(dt.date.today())
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: The user with the username: '{user}' logged in successfully to the system.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close()
+             
+                app.logger.info (msg=f"The user with the username: '{user}' logged in successfully to the system.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+     
                 return resp
             else:
                 message = 'Login request declined! Please make sure to send a valid username and password'
                 resp = jsonify ({'message' : message})
                 resp.status_code = 401
-                today = str(dt.date.today())
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: An unknown user tried to login to the system providing invalid credentials.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close()
+                
+                app.logger.info (msg=f"An unknown user tried to login to the system providing invalid credentials.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
                 return resp
             
 class research_object (Resource):
+    
     @token_required
     def get(self, result, ticket):
         
         #######################################################################
-        
+        user_id = app.config["CURRENT_USER"][0]
+        username = app.config["CURRENT_USER"][1]
         #######################################################################
     
         if not ticket:
             message = 'Please make sure to send a valid request. Your json payload lacks a ticket key'
             resp = jsonify({'message' : message})
             resp.status_code = 400
-            today = str(dt.date.today())
+
             if not os.path.exists("log"):
                 os.makedirs("log")
-            log_file = open("./log/log-"+today+".txt", "a")
-            log_time = time.localtime()
-            log_time = time.strftime("%H:%M:%S", log_time)
-            log = f"************************************************\n{log_time}: The user with the username '{user}' sent a download request without any ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-            log_file.writelines(log)            
-            log_file.close()
+            
+            app.logger.info (msg=f"The user with the username '{username}' sent a download request without any ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+            
             return resp
        
         else:
-            user_id = app.config["CURRENT_USER"][0]
-            username = app.config["CURRENT_USER"][1]
+           
             status = check_status(ticket, user_id)
             if status == -2:
                 message = 'Couldn\'t download file. Only the file owner can download the file.'
                 resp = jsonify({'message' : message})
                 resp.status_code = 400
-                today = str(dt.date.today())
+
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: The user with the username '{username}' sent a download request for a file belonging to other user.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close()
+               
+                app.logger.info (msg=f"The user with the username '{username}' sent a download request for a file belonging to other user.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
                 return resp
             if status == -1:
                 message = 'Couldn\'t download file. The ticket you entered isn\'t valid.'
                 resp = jsonify({'message' : message})
                 resp.status_code = 400
-                today = str(dt.date.today())
+
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: The user with the username '{username}' sent a download request with an invalid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close()   
+        
+                app.logger.info (msg=f"The user with the username '{username}' sent a download request with an invalid ticket.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+       
                 return resp
             if status == 0:
                 message = 'Couldn\' download file. Your file isn\'t ready yet.'
                 resp = jsonify({'message' : message})
                 resp.status_code = 400
-                today = str(dt.date.today())
+
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: The user with the username '{username}' sent a download request for a file that isn't ready yet.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close() 
+          
+                app.logger.info (msg=f"The user with the username '{username}' sent a download request for a file that isn't ready yet.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
+              
                 return resp
             else:
                 resp = send_file(app.config['DOWNLOAD_FOLDER'] + '/' + ticket+".jsonld", attachment_filename="enriched_"+status)
                 resp.status_code = 200
                 message = "Downloaded successfully"
-                today = str(dt.date.today())
+                
                 if not os.path.exists("log"):
                     os.makedirs("log")
-                log_file = open("./log/log-"+today+".txt", "a")
-                log_time = time.localtime()
-                log_time = time.strftime("%H:%M:%S", log_time)
-                log = f"************************************************\n{log_time}: The user with the username '{username}' downloaded successfully the file related to the ticket '{ticket}'\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n"
-                log_file.writelines(log)            
-                log_file.close() 
+                
+                app.logger.info (msg=f"The user with the username '{username}' downloaded successfully the file related to the ticket '{ticket}'.\nStatus_code: '{resp.status_code}'\nMessage: '{message}'\n**********************************************") 
+
                 return resp
                 
 
@@ -557,4 +524,5 @@ api.add_resource(research_object, "/api/research_object/<string:ticket>/")
 
 if __name__ == "__main__":
     #app.run(debug=True)
-    app.run(debug=True,host="0.0.0.0",port=5000)
+    config_logger()
+    serve(app,host="0.0.0.0",port=5000)

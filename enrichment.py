@@ -1,6 +1,7 @@
-import requests, json, os, time
-import sqlite3 as sql
-import datetime as dt
+import requests, json, os, time, sqlite3 as sql, datetime as dt, logging
+from logging import Formatter
+from logging.handlers import TimedRotatingFileHandler
+
 
 INPUT_FOLDER = './pending_jobs'
 OUTPUT_FOLDER = './done_jobs'
@@ -46,6 +47,19 @@ def openAire_pub(doi:str):
         else:
                 #print(type(resp))
                 return resp
+        
+def config_logger():
+    logname = "../log/core.log"
+    logger = logging.Logger(name=logname, level = logging.DEBUG)
+       
+    
+    formatter = Formatter('%(asctime)s %(levelname)s: %(message)s')
+    handler = TimedRotatingFileHandler(filename = logname, when="midnight", interval=1)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+    handler.suffix = "%d%m%Y"
+    logger.handlers.clear()
+    logger.addHandler(handler) 
 
 def enrich_RO ():
       
