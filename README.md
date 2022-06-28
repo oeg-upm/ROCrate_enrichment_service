@@ -20,8 +20,6 @@ The enrichment app is the core of this project. It's an app that infinitively an
     5. The database is updated and the status of the fulfilled requests is set to ready
  6. The app sleeps during one minute and then returns to step 1.
 
-# Deletion App:
-The deletion app is an app that runs periodically (every second day) and empties the program's input and output folders from unnecessary json files
 
 # The API:
 The project has a restful API designed with flask-restful on python. The API has a JWT authentication system and 4 resources that will be explained afterwards:
@@ -85,7 +83,7 @@ Get research_object:
 The @token_required decorator controls access to this method. This method also receives ticket of the job which the user wants to download. The method then consult the database and only sends the file to its owner.
 
 # Support scripts:
-## deletions.py:
+## deletion.py:
 This method takes care of emptying the input and output folder of the server to remove all unnecessary files. You can execute it manually or program it to be launched by another process periodically
 
 ## sign_up.py:
@@ -99,6 +97,30 @@ This script was created for testing. It drops all the tables in the database.
 ## create_db.py:
 This script creates the database manually. It should be used in a manual deployment scenario.
 
+# More folders and files:
+## Database:
+As its name indicates. This folder hosts the database used in this project called enrichmentDB.db
+
+## pending_jobs & done_jobs:
+These folders host the RO-Crate files sent by the users. When the files uploaded the service, they are hosted in the pending_jobs folder. When the enrichment core processes a request, it saves the enriched file in the done_jobs folder. The API then sends the enriched file to the user.
+These folders are emptied periodically by the deletion script.
+
+## log:
+This folder hosts the log files of the service. Log files are created daily and save relevant data.
+
+## Dockerfile:
+This file contains the descriptions of the docker image that is used to create the container.
+
+## swagger.yaml:
+This file contains the description of the API and it’s used to create the swagger documentation of the API:
+
+`https://app.swaggerhub.com/apis/GHADIB_1/restful-api_ro_enrichment/2.0.0#/`
+
+## requirements.txt:
+This file contains the python libraries that should be installed to deploy the service successfully. It’s used in the deployment process to create the environment.
+
+## LICENSE:
+A public apache license for the project.
 
 
 # How to use?
