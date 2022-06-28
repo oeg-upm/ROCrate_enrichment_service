@@ -7,7 +7,7 @@ ROCrate_enrichment_service is a metadata enrichment service for research objects
 # Enrichment App:
 The enrichment app is the core of this project. It's an app that infinitively and periodically does the following sequence of operations:
 
-![image](https://user-images.githubusercontent.com/17781274/172907425-faf5dcce-1f43-41df-b6f3-228f088ac7a6.png)
+![image](https://user-images.githubusercontent.com/17781274/176193355-087579b6-c6bf-47bc-89e6-3339921fec2f.png)
 
 
 1. Checks for pending jobs in the database.
