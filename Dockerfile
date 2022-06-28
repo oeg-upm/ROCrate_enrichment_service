@@ -11,4 +11,4 @@ RUN apt-get install -y cron
 
 CMD ["python","run.py"]
 
- 
+ EXPOSE 5000
