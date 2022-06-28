@@ -170,11 +170,13 @@ Step 5 : Change the SECRET_KEY used to encrypt the passwords to a key of your ch
 . To do so, open the script called API_Server_v2.py with a text editor and enter the new key in the variable SECRET_KEY in line #10
 
 Only if you are using linux:
+  
   Step 6 : Run the application on your linux machine
 
   `py run.py`, `py3 run.py`, `python run.py` or `python3 run.py`. This depends on your local environment. 
 
-If you are not using linux, follow these steps:
+If you are not using linux, follow steps 6-9:
+  
   Step 6: Create the database and it's tables by executing the script called create_db.py through the following command
 
   `py create_db.py`
