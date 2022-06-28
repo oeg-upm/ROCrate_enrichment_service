@@ -1,0 +1,237 @@
+openapi: 3.0.1
+info:
+  description: "UPM RO-Enrichmetn service's API description"
+  version: "2.0.0"
+  title: "restful API RO-Enrichment"
+servers:
+- url: https://ro-enrichment.linkeddata.es/api/
+tags:
+- name: jobs
+  description: This endpoint manages POST and GET operations on the jobs resource
+- name: job
+  description: This endpoint manages GET operations on the job resource
+- name: login
+  description: This endpoint manages granting access tokens to users
+- name: research_object
+  description: This endpoint is used to download enriched files once they are ready
+paths:
+  /login:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - login
+      summary: Login to the service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: User's username in the service
+                userpassword:
+                  type: string
+                  description: User's password in the service
+    
+      responses:
+        200:
+          description: (OK) Logged in successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginPostSuccess'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'  
+
+  /jobs:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - jobs
+      summary: Inserts a new job in the service
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: (OK) The job was created successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsPostSuccess'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'  
+
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - jobs
+      summary: This method returns a list of jobs requested by the client
+      responses:
+        200:
+          description: (OK) The request was successful!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobsGetSuccess'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'  
+  
+  /job/{ticket}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - job
+      summary: This method return the status of a job in the service
+      parameters:
+      - name: ticket
+        in: path
+        description: identificator of a job in the service
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: (OK) The request was successful!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobGetSuccess'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'  
+        
+  /research_object/{ticket}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - research_object
+      summary: This method sends the enriched file to the user in case it's ready
+      parameters:
+      - name: ticket
+        in: path
+        description: identificator of a job in the service
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: (OK) The request was successful! File found but not ready!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoGetSuccess'
+
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'  
+        
+ 
+  
+components:
+  securitySchemes:
+      bearerAuth:            # arbitrary name for the security scheme
+        type: http
+        scheme: bearer
+        bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  responses:
+    Unauthorized:
+      description: (Unauthorized) The user lacks of access permition
+    
+    NotFound:
+      description: (NotFound) Information couldn't be found
+
+    BadRequest:
+      description: (BadRequest) The sent data's type doesn't match the required type
+
+    ServerError:
+      description: (ServerError) A server error has occured 
+
+  schemas:
+    JobsPostSuccess:
+      type: object
+      properties:
+        
+        message:
+          type: string
+          description: A message that describes the status
+        ticket:
+          type: string
+          description: The ticket of the created job that should be used for further consults
+    
+    JobsGetSuccess:
+      type: object
+      properties:
+       
+        results:
+          type: string
+          description: A list of the jobs published by this user
+
+    JobGetSuccess:
+      type: object
+      properties:
+       
+        message:
+          type: string
+          description: A message that describes the status
+        
+    RoGetSuccess:
+      type: object
+      properties:
+       
+        message:
+          type: string
+          description: A message that describes the status
+
+    LoginPostSuccess:
+      type: object
+      properties:
+       
+        message:
+          type: string
+          description: A message that describes the result of the request
+        token: 
+          type: string
+          description: The token that should be used by the user to access the service
