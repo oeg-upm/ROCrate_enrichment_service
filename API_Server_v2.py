@@ -33,7 +33,7 @@ def config_logger():
     logname = app.config["LOGGING_FOLDER"] + "/API.log"
     app.logger.setLevel(logging.DEBUG)   
     
-    formatter = Formatter('%(asctime)s %(levelname)s: %(message)s')
+    formatter = Formatter('%(asctime)s %(levelname)s: %(message)s',datefmt="%m/%d/%Y %I:%M:%S %p %Z")
     handler = TimedRotatingFileHandler(filename = logname, when="midnight", interval=1)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
