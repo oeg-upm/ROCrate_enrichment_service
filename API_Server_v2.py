@@ -1,8 +1,8 @@
-from distutils.log import debug
 from flask import Flask, request, jsonify, send_file
 from flask_restful import Api, Resource
 import os, uuid, jwt, json, time, datetime as dt, sqlite3 as sql, logging,logging
 from waitress import serve
+import re
 
 from werkzeug.security import  check_password_hash, generate_password_hash
 from logging import Formatter
@@ -38,6 +38,7 @@ def config_logger():
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
     handler.suffix = "%d%m%Y"
+    handler.extMatch = re.compile(r"^\d{8}$") 
     app.logger.handlers.clear()
     app.logger.addHandler(handler) 
     #app.logger.debug("debuggggggggggggg")

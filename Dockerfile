@@ -1,13 +1,14 @@
-FROM python:3.10
+FROM alpine:3.10
+
 
 WORKDIR /API
 
 COPY . /API/
-RUN python -m pip install --upgrade pip
+RUN apk add --no-cache python3-dev 
+RUN python3 -m pip install --upgrade pip
 RUN pip install -r requirements.txt
-RUN apt-get update
-RUN apt-get install -y cron
+
 
 EXPOSE 5000
-CMD ["python","run.py"]
+CMD ["python3","run.py"]
 
