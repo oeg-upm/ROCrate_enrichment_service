@@ -54,8 +54,13 @@ paths:
 
   /jobs:
     post:
-      security:
-        - bearerAuth: []
+      parameters: 
+       -  name: x-access-tokens
+          in: header
+          required: true
+          description: Authentication token
+          schema:
+            type: string
       tags:
       - jobs
       summary: Inserts a new job in the service
@@ -86,8 +91,13 @@ paths:
           $ref: '#/components/responses/ServerError'  
 
     get:
-      security:
-        - bearerAuth: []
+      parameters: 
+      - name: x-access-tokens
+        in: header
+        required: true
+        description: Authentication 
+        schema:
+          type: string
       tags:
         - jobs
       summary: This method returns a list of jobs requested by the client
@@ -109,12 +119,17 @@ paths:
   
   /job/{ticket}:
     get:
-      security:
-        - bearerAuth: []
+     
       tags:
         - job
       summary: This method return the status of a job in the service
       parameters:
+      - name: x-access-tokens
+        in: header
+        required: true
+        description: Authentication 
+        schema:
+          type: string
       - name: ticket
         in: path
         description: identificator of a job in the service
@@ -145,6 +160,12 @@ paths:
         - research_object
       summary: This method sends the enriched file to the user in case it's ready
       parameters:
+      - name: x-access-tokens
+        in: header
+        required: true
+        description: Authentication 
+        schema:
+          type: string
       - name: ticket
         in: path
         description: identificator of a job in the service
@@ -205,7 +226,7 @@ components:
       type: object
       properties:
        
-        results:
+        jobs:
           type: string
           description: A list of the jobs published by this user
 
