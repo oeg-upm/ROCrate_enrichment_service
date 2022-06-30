@@ -1,0 +1,7 @@
+--1234567890
+Content-Disposition: form-data; name="file"; filename="ab1_pod.jsonld"
+Content-Type: application/json
+Content-Transfer-Encoding: base64
+
+[base64 encoding of the file]
+--1234567890--

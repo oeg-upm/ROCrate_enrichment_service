@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking ro-enrichment.linkeddata.es (be patient)
+
+
+Server Software:        waitress
+Server Hostname:        ro-enrichment.linkeddata.es
+Server Port:            443
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-AES256-GCM-SHA384,2048,256
+Server Temp Key:        X25519 253 bits
+TLS Server Name:        ro-enrichment.linkeddata.es
+
+Document Path:          /api/job/1234567890
+Document Length:        295 bytes
+
+Concurrency Level:      10
+Time taken for tests:   10.039 seconds
+Complete requests:      1000
+Failed requests:        0
+Non-2xx responses:      1000
+Total transferred:      563000 bytes
+HTML transferred:       295000 bytes
+Requests per second:    99.61 [#/sec] (mean)
+Time per request:       100.394 [ms] (mean)
+Time per request:       10.039 [ms] (mean, across all concurrent requests)
+Transfer rate:          54.76 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:       26   70 146.3     34     957
+Processing:     9   29  81.7     16     731
+Waiting:        9   27  75.8     16     731
+Total:         37  100 165.5     51     968
+
+Percentage of the requests served within a certain time (ms)
+  50%     51
+  66%     54
+  75%     59
+  80%     63
+  90%     95
+  95%    495
+  98%    762
+  99%    922
+ 100%    968 (longest request)
