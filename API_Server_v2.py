@@ -113,7 +113,7 @@ def token_required(f):
     return decorator
 
 
-def check_status (ticket: str, token: str):
+def check_status (ticket: str, user_id: str):
     conn = sql.connect("./Database/enrrichmentDB.db")
     cursor = conn.cursor()
     instruction = f"SELECT * FROM jobs WHERE job_id = '{ticket}'"
@@ -124,7 +124,7 @@ def check_status (ticket: str, token: str):
     if not result:
         return (-1)
     else:
-        if result[2] == token:
+        if result[2] == user_id:
             ready = result[3]
             if ready > 0:
                 return result[1]    
@@ -345,8 +345,8 @@ class Job (Resource):
 
             return resp    
         else:   
-            message = f"Your request is ready. Please use your ticket to request your file from http://hostname.upm.es/api/research_object/{ticket}/"
-            link = f"http://hostname.upm.es/api/research_object/{ticket}/"
+            message = f"Your request is ready. Please use your ticket to request your file from https://ro-enrichment.linkeddata.es/api/research_object/{ticket}/"
+            link = f"https://ro-enrichment.linkeddata.es/api/research_object/{ticket}/"
             resp = jsonify({'message' : message, "link":link})
             resp.status_code = 200
             

@@ -8,7 +8,6 @@ RUN pip install -r requirements.txt
 RUN apt-get update
 RUN apt-get install -y cron
 
-
+EXPOSE 5000
 CMD ["python","run.py"]
 
- EXPOSE 5000
